@@ -1,0 +1,322 @@
+package me.telosmancy.utils
+
+import com.mojang.serialization.JsonOps
+import me.telosmancy.Telosmancy
+import me.telosmancy.features.impl.ClickGUIModule
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
+import net.minecraft.client.gui.components.ChatComponent
+import net.minecraft.client.multiplayer.chat.GuiMessageSource
+import net.minecraft.client.multiplayer.chat.GuiMessageTag
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.ComponentSerialization
+import net.minecraft.network.chat.MutableComponent
+
+/**
+ * Telosmancy message indicator for chat messages.
+ * Shows a line on the left side of Telosmancy mod messages.
+ * Note: Must remain as standard native UI implementation since GuiMessageTag requires Int.
+ */
+val Telosmancy_MESSAGE_INDICATOR = GuiMessageTag(
+    0xB8FFE1,
+    null,
+    Component.literal("Message from Telosmancy"),
+    "Telosmancy"
+)
+
+/**
+ * Converts a MiniMessage string into a native Minecraft Component.
+ */
+internal fun String.toNative(): Component {
+    val adventureComponent = Message.MINI_MESSAGE.deserialize(this)
+    val json = GsonComponentSerializer.gson().serializeToTree(adventureComponent)
+
+    val registryAccess = Telosmancy.mc.level?.registryAccess()
+        ?: Telosmancy.mc.connection?.registryAccess()
+
+    return ComponentSerialization.CODEC.parse(registryAccess!!.createSerializationContext(JsonOps.INSTANCE), json).getOrThrow()
+}
+
+/**
+ * Creates gradient text for "Telosmancy" using themed colors.
+ * Utilizes MiniMessage's built-in multi-stop gradient tags.
+ */
+fun getTelosmancyGradient(): String {
+    // Exact hex translation of the light teal to emerald green gradient
+    val gradientTag = "<gradient:#B8FFE1:#7CFFB2:#2E8F78>"
+    return "<bold>${gradientTag}Telosmancy</gradient></bold>"
+}
+
+/**
+ * Creates gradient text for "Telosmancy" using themed colors.
+ * Utilizes MiniMessage's built-in multi-stop gradient tags.
+ */
+fun createTelosmancyGradient(): Component {
+    // Exact hex translation of the light teal to emerald green gradient
+    return getTelosmancyGradient().toNative()
+}
+
+/**
+ * Creates the Telosmancy prefix with gradient text and separator.
+ * Format: [Gradient Telosmancy] ›
+ */
+fun getTelosmancyWatermark(): String {
+    return (getTelosmancyGradient() + " <bold>${Message.Colors.SEPARATOR}›</bold><reset>")
+}
+
+/**
+ * Creates the Telosmancy prefix with gradient text and separator.
+ * Format: [Gradient Telosmancy] ›
+ */
+fun createTelosmancyWatermark(): Component {
+    return getTelosmancyWatermark().toNative()
+}
+
+fun sendChatMessage(message: Any) {
+    Telosmancy.mc.execute { Telosmancy.mc.player?.connection?.sendChat(message.toString()) }
+}
+
+fun sendCommand(command: String) {
+    Telosmancy.mc.execute { Telosmancy.mc.player?.connection?.sendCommand(command) }
+}
+
+fun getCenteredText(text: String): String {
+    // Strip both MiniMessage tags and legacy formatting codes safely
+    val strippedText = Message.MINI_MESSAGE.stripTags(text).replace(Regex("§[0-9a-fk-or]"), "")
+    if (strippedText.isEmpty()) return text
+
+    val textWidth = Telosmancy.mc.font.width(strippedText)
+    val chatWidth = ChatComponent.getWidth(Telosmancy.mc.options.chatWidth().get())
+
+    if (textWidth >= chatWidth) return text
+
+    val spacesNeeded = ((chatWidth - textWidth) / 2 / 4).coerceAtLeast(0)
+    return " ".repeat(spacesNeeded) + text
+}
+
+fun getChatBreak(): String {
+    val width = ChatComponent.getWidth(Telosmancy.mc.options.chatWidth().get())
+    val spaceWidth = Telosmancy.mc.font.width(" ").coerceAtLeast(1)
+    return "<st>" + " ".repeat((width / spaceWidth).coerceAtLeast(0)) + "</st>"
+}
+
+/**
+ * Helper functions for creating styled text components cleanly powered by MiniMessage.
+ */
+object ChatStyle {
+    /**
+     * Creates a styled text component with the given MiniMessage color tag
+     */
+    fun text(content: String, colorTag: String, bold: Boolean = false): Component {
+        val boldTag = if (bold) "<bold>" else ""
+        val endBoldTag = if (bold) "</bold>" else ""
+        return "$colorTag$boldTag$content$endBoldTag<reset>".toNative()
+    }
+
+    fun command(content: String): Component = text(content, Message.Colors.COMMAND)
+    fun regular(content: String): Component = text(content, Message.Colors.TEXT)
+    fun muted(content: String): Component = text(content, Message.Colors.MUTED)
+    fun prefix(): Component = text("› ", Message.Colors.PREFIX, bold = true)
+    fun separator(): Component = text("- ", Message.Colors.MUTED)
+    fun success(content: String): Component = text(content, Message.Colors.SUCCESS)
+    fun error(content: String): Component = text(content, Message.Colors.ERROR)
+    fun warning(content: String): Component = text(content, Message.Colors.WARNING)
+    fun info(content: String): Component = text(content, Message.Colors.INFO)
+}
+
+/**
+ * Unified messaging system for Telosmancy mod.
+ *
+ * Provides a consistent API for sending messages to the player with proper formatting,
+ * watermark prefix, and message indicator.
+ */
+object Message {
+
+    /**
+     * MiniMessage instance used to parse formatted strings.
+     */
+    val MINI_MESSAGE: MiniMessage = MiniMessage.miniMessage()
+
+    /**
+     * Centralized color tags for the unified messaging system utilizing MiniMessage.
+     * All colors are in MiniMessage hex format (<#RRGGBB>).
+     */
+    object Colors {
+        // Message type colors
+        const val SUCCESS = "<#00FF00>"
+        const val ERROR = "<#FF3333>"
+        const val WARNING = "<#FFFF00>"
+        const val INFO = "<#55FFFF>"
+
+        // UI & Special colors
+        const val COMMAND = "<#FFD700>"
+        const val DEV = "<#FF3333>"
+        const val SEPARATOR = "<#606060>"
+        const val TEXT = "<#AAAAAA>"
+        const val MUTED = "<#808080>"
+        const val PREFIX = "<#808080>"
+    }
+
+    /**
+     * Sends a basic chat message with the Telosmancy watermark prefix.
+     *
+     * @param message The message content (supports MiniMessage formatting)
+     */
+    fun chat(message: String) {
+        chat(message.toNative())
+    }
+
+    /**
+     * Sends a chat message with the Telosmancy watermark prefix.
+     *
+     * @param message The message component
+     */
+    fun chat(message: Component) {
+        Telosmancy.mc.execute {
+            val watermark = createTelosmancyWatermark()
+
+            val text = Component.empty()
+                .append(watermark)
+                .append(Component.literal(" "))
+                .append(message)
+            
+            Telosmancy.mc.gui.chat.addPlayerMessage(text, null, Telosmancy_MESSAGE_INDICATOR)
+        }
+    }
+
+    /**
+     * Sends a raw chat message WITHOUT the Telosmancy watermark prefix.
+     *
+     * @param message The message content (supports MiniMessage formatting)
+     */
+    fun raw(message: String) {
+        raw(message.toNative())
+    }
+
+    /**
+     * Sends a raw chat message WITHOUT the Telosmancy watermark prefix.
+     *
+     * @param message The message component
+     */
+    fun raw(message: Component) {
+        Telosmancy.mc.execute {
+            Telosmancy.mc.gui.chat.addClientSystemMessage(message)
+        }
+    }
+
+    /**
+     * Sends a success message (green text) with the Telosmancy watermark prefix.
+     */
+    fun success(message: String) {
+        chat("${Colors.SUCCESS}$message")
+    }
+
+    /**
+     * Sends an error message (red text) with the Telosmancy watermark prefix.
+     */
+    fun error(message: String) {
+        chat("${Colors.ERROR}$message")
+    }
+
+    /**
+     * Sends a warning message (yellow text) with the Telosmancy watermark prefix.
+     */
+    fun warning(message: String) {
+        chat("${Colors.WARNING}$message")
+    }
+
+    /**
+     * Sends an info message (cyan text) with the Telosmancy watermark prefix.
+     */
+    fun info(message: String) {
+        chat("${Colors.INFO}$message")
+    }
+
+    /**
+     * Sends a message to the action bar (temporary overlay above hotbar).
+     *
+     * @param message The action bar message content (supports MiniMessage formatting)
+     */
+    fun actionBar(message: String) {
+        actionBar(MINI_MESSAGE.deserialize(message))
+    }
+
+    /**
+     * Sends a component to the action bar (temporary overlay above hotbar).
+     */
+    fun actionBar(message: net.kyori.adventure.text.Component) {
+        Telosmancy.mc.execute {
+            Telosmancy.mc.player?.sendActionBar(message)
+        }
+    }
+
+    /**
+     * Sends a centered chat message with the Telosmancy watermark prefix.
+     *
+     * @param message The message content (supports MiniMessage formatting)
+     */
+    fun centered(message: String) {
+        val centeredText = getCenteredText(message)
+        chat(centeredText)
+    }
+
+    /**
+     * Sends a centered chat message WITHOUT the Telosmancy watermark prefix.
+     *
+     * @param message The message content (supports MiniMessage formatting)
+     */
+    fun centeredRaw(message: String) {
+        val centeredText = getCenteredText(message)
+        raw(centeredText)
+    }
+
+    /**
+     * Sends a dev message (only shows if dev mode is enabled).
+     *
+     * @param message The dev message content (supports MiniMessage formatting)
+     */
+    fun dev(message: String) {
+        if (!ClickGUIModule.devMode) {
+            return
+        }
+
+        val devPrefixStr = "${Colors.DEV}<bold>Dev</bold> ${Colors.SEPARATOR}<bold>›</bold><reset>"
+        val devPrefixComponent = devPrefixStr.toNative()
+
+        Telosmancy.mc.execute {
+            val watermark = createTelosmancyGradient()
+
+            val text = Component.empty()
+                .append(watermark)
+                .append(Component.literal(" "))
+                .append(devPrefixComponent)
+                .append(Component.literal(" "))
+                .append(message.toNative())
+
+            Telosmancy.mc.gui.chat.addPlayerMessage(text, null, Telosmancy_MESSAGE_INDICATOR)
+        }
+    }
+
+    /**
+     * Sends a visual separator line in chat.
+     *
+     * @param colorTag The separator MiniMessage color tag (default: Colors.SEPARATOR)
+     */
+    fun separator(colorTag: String = Colors.SEPARATOR) {
+        val breakLine = getChatBreak()
+
+        Telosmancy.mc.execute {
+            val component = "$colorTag$breakLine".toNative()
+            Telosmancy.mc.gui.chat.addClientSystemMessage(component)
+        }
+    }
+
+    /**
+     * Creates a new MessageBuilder for building complex messages.
+     *
+     * @return A new MessageBuilder instance
+     */
+    fun builder(): MessageBuilder {
+        return MessageBuilder()
+    }
+}

@@ -1,0 +1,17 @@
+THIRD-PARTY SOFTWARE NOTICES
+
+This project incorporates code from the following projects:
+
+Odin
+https://github.com/odtheking/Odin
+Copyright (c) 2025, odtheking
+License: BSD 3-Clause (see LICENSES/BSD-3-Clause-Odin.txt)
+
+RealmsAddon
+https://github.com/realmsaddon/RealmsAddon
+Copyright (c) 2024 Restics
+License: MIT (see LICENSES/MIT-RealmsAddon.txt)
+
+TorilhosAddon
+https://github.com/Torilhos/TorilhosAddon
+License: CC0 1.0 Universal (Public Domain)

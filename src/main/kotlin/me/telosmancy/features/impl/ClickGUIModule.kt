@@ -1,0 +1,198 @@
+package me.telosmancy.features.impl
+
+import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.*
+import me.telosmancy.Telosmancy
+import me.telosmancy.clickgui.ClickGUI
+import me.telosmancy.clickgui.HudManager
+import me.telosmancy.clickgui.settings.AlwaysActive
+import me.telosmancy.clickgui.settings.impl.ActionSetting
+import me.telosmancy.clickgui.settings.impl.BooleanSetting
+import me.telosmancy.clickgui.settings.impl.ColorSetting
+import me.telosmancy.events.WorldLoadEvent
+import me.telosmancy.events.core.on
+import me.telosmancy.features.Category
+import me.telosmancy.features.Module
+import me.telosmancy.utils.Color
+import me.telosmancy.utils.LocalAPI
+import me.telosmancy.utils.Message
+import me.telosmancy.utils.alert
+import me.telosmancy.utils.getCenteredText
+import me.telosmancy.utils.getChatBreak
+import me.telosmancy.utils.getTelosmancyWatermark
+import me.telosmancy.utils.toNative
+import me.telosmancy.utils.ui.rendering.NVGRenderer
+import net.minecraft.client.Minecraft
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
+import org.lwjgl.glfw.GLFW
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.time.Duration
+import kotlin.math.max
+import kotlin.math.round
+
+@AlwaysActive
+object ClickGUIModule : Module(
+    name = "Click GUI",
+    key = GLFW.GLFW_KEY_RIGHT_SHIFT,
+    category = Category.MISC,
+    description = "Allows you to customize the UI."
+) {
+    val enableNotification by BooleanSetting("Chat notifications", true, desc = "Sends a message when you toggle a module with a keybind")
+    val clickGUIColor by ColorSetting("Color", Color(27, 197, 97), desc = "The color of the Click GUI.") // bright green: 0x1BC561
+    
+    private val action by ActionSetting("Open HUD Editor", desc = "Opens the HUD editor when clicked.") {
+        mc.setScreen(HudManager)
+    }
+    
+    val devMode by BooleanSetting("Dev Mode", false, desc = "Enables developer commands and debug messages")
+
+    val reduceMotion by BooleanSetting("Reduce Profile Motion", false, desc = "Calms the ambient animation in the profile screen for a quieter, more readable view")
+    
+    fun getStandardGuiScale(): Float {
+        val verticalScale = (mc.window.screenHeight.toFloat() / 1080f) / NVGRenderer.devicePixelRatio()
+        val horizontalScale = (mc.window.screenWidth.toFloat() / 1920f) / NVGRenderer.devicePixelRatio()
+        return round(max(verticalScale, horizontalScale).coerceIn(1f, 3f) * 10f) / 10f
+    }
+    
+    override fun onKeybind() {
+        toggle()
+    }
+    
+    override fun onEnable() {
+        mc.setScreen(ClickGUI)
+        super.onEnable()
+        toggle()
+    }
+
+    // Update checker integration
+    private const val RELEASE_LINK = "https://modrinth.com/project/fsZHbO2r/version/"
+    private const val GITHUB_API_URL = "https://api.github.com/repos/House-Hades/Telosmancy/releases/latest"
+    private var latestVersionNumber: String? = null
+    private var hasSentUpdateMessage = false
+    
+    private val updateScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val httpClient = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(5))
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build()
+    
+    init {
+        updateScope.launch {
+            latestVersionNumber = checkNewerVersion(Telosmancy.version.friendlyString)
+        }
+        
+        on<WorldLoadEvent> {
+            if (hasSentUpdateMessage || latestVersionNumber == null) return@on
+            hasSentUpdateMessage = true
+            
+            CoroutineScope(Dispatchers.Default).launch {
+                delay(2000)
+                Minecraft.getInstance().execute {
+                    notifyUpdate(latestVersionNumber!!)
+                }
+            }
+        }
+    }
+
+    /**
+     * Notify the player about the available update using telosmancy message style.
+     */
+    private fun notifyUpdate(version: String) {
+        mc.execute {
+            val currentVersion = Telosmancy.version.friendlyString
+            val message = buildUpdateMessage(currentVersion, version, RELEASE_LINK + version.removePrefix("v"))
+            Telosmancy.mc.gui.chat.addClientSystemMessage(message)
+            
+            // Play alert sound
+            alert("Telosmancy Update Available", playSound = true)
+        }
+    }
+    
+    /**
+     * Build the update message in the telosmancy style with centered text.
+     */
+    private fun buildUpdateMessage(currentVersion: String, targetVersion: String, releaseUrl: String): MutableComponent {
+        val sepTag = "<#606060>${getChatBreak()}"
+        
+        val headerText = getCenteredText("<#FFFFFF>☽ </#FFFFFF><#7CFFB2><bold>UPDATE AVAILABLE</bold></#7CFFB2><#FFFFFF> ☽</#FFFFFF>")
+        val telosmancyText = getCenteredText("<bold><gradient:#B8FFE1:#7CFFB2:#2E8F78>Telosmancy</gradient></bold><#AAAAAA> grows stronger, a new version awaits.</#AAAAAA>")
+        val versionText = getCenteredText("<#AAAAAA>Current version: <#7CFFB2>v$currentVersion</#7CFFB2> → New version: <#7CFFB2>$targetVersion</#7CFFB2></#AAAAAA>")
+        
+        val githubTag = "<click:open_url:'$releaseUrl'><hover:show_text:'<#AAAAAA>Open the Modrinth Page'><#7CFFB2><underlined>ᴍᴏᴅʀɪɴᴛʜ</underlined></#7CFFB2></hover></click>"
+        val discordTag = "<click:open_url:'https://discord.gg/Nxhmxjt3kR'><hover:show_text:'<#AAAAAA>Join the Telosmancy Discord server'><#7CFFB2><underlined>ᴅɪѕᴄᴏʀᴅ</underlined></#7CFFB2></hover></click>"
+        val dText = getCenteredText("<#AAAAAA>Download the latest release on $githubTag or $discordTag!</#AAAAAA>")
+        
+        val miniMessageStr = "$sepTag<br>$headerText<br>$telosmancyText<br>$versionText<br>$dText<br>$sepTag"
+        
+        return Component.empty().append(miniMessageStr.toNative())
+    }
+    
+    private suspend fun checkNewerVersion(currentVersion: String): String? {
+        return try {
+            val release = fetchLatestRelease() ?: return null
+            if (isSecondNewer(currentVersion, release.tagName)) {
+                Telosmancy.logger.info("Update available: ${release.tagName} (current: $currentVersion)")
+                release.tagName
+            } else {
+                Telosmancy.logger.info("No update available (current: $currentVersion, latest: ${release.tagName})")
+                null
+            }
+        } catch (e: Exception) {
+            Telosmancy.logger.error("Failed to check for updates: ${e.message}")
+            null
+        }
+    }
+    
+    private suspend fun fetchLatestRelease(): Release? {
+        return try {
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create(GITHUB_API_URL))
+                .header("Accept", "application/json")
+                .header("User-Agent", "telosmancy-Mod-Update-Checker")
+                .GET()
+                .timeout(Duration.ofSeconds(10))
+                .build()
+            
+            val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+            
+            if (response.statusCode() == 200) {
+                com.google.gson.Gson().fromJson(response.body(), Release::class.java)
+            } else {
+                Telosmancy.logger.warn("GitHub API returned status ${response.statusCode()}")
+                null
+            }
+        } catch (e: Exception) {
+            Telosmancy.logger.error("Failed to fetch latest release: ${e.message}")
+            null
+        }
+    }
+    
+    private fun isSecondNewer(currentVersion: String, previousVersion: String?): Boolean {
+        if (currentVersion.isEmpty() || previousVersion.isNullOrEmpty()) return false
+        
+        val current = currentVersion.removePrefix("v")
+        val previous = previousVersion.removePrefix("v")
+        
+        val (major, minor, patch) = current.split(".").mapNotNull { it.toIntOrNull() }
+        val (major2, minor2, patch2) = previous.split(".").mapNotNull { it.toIntOrNull() }
+        
+        return when {
+            major > major2 -> false
+            major < major2 -> true
+            minor > minor2 -> false
+            minor < minor2 -> true
+            patch > patch2 -> false
+            patch < patch2 -> true
+            else -> false
+        }
+    }
+    
+    private data class Release(
+        @SerializedName("tag_name")
+        val tagName: String
+    )
+}

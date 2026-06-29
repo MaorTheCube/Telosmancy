@@ -1,0 +1,247 @@
+{
+  "providers":[
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_smiling.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF400\uF401\uF402\uF403\uF404\uF405\uF406\uF407\uF408\uF409\uF40A\uF40B\uF40C"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_affection.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF40D\uF40E\uF40F\uF410\uF411\uF412"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_tongue.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF413\uF414\uF415\uF416\uF417\uF418"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_hand.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF419\uF41A\uF41B\uF41C\uF41D\uF41E\uF41F"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_neutral_skeptical.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF420\uF421\uF422\uF423\uF424\uF425\uF426\uF427\uF428\uF429\uF42A"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_sleepy.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF42B\uF42C\uF42D\uF42E\uF42F\uF430"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_unwell.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF431\uF432\uF433\uF434\uF435\uF436\uF437"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_hat.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF438"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_glasses.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF439\uF43A\uF43B"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_concerned.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF43C\uF43D\uF43E\uF43F\uF440\uF441\uF442\uF443\uF444\uF445\uF446\uF447\uF448\uF449\uF44A\uF44B\uF44C\uF44D"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_negative.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF44E\uF44F\uF450\uF451"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/face_costume.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF452\uF453\uF454\uF455"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/cat_face.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF456\uF457\uF458\uF459\uF45A\uF45B\uF45C\uF45D\uF45E"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/monkey_face.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF45F\uF460\uF461"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/heart.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF462\uF463\uF464\uF465\uF466\uF467\uF468\uF469"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/emotion.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF46A\uF46B\uF46C\uF46D\uF46E"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/hand_fingers_open.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF46F"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/hand_fingers_partial.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF470\uF471\uF472\uF473\uF474\uF475"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/hand_single_finger.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF476\uF477\uF478\uF479\uF47A\uF47B"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/hand_fingers_closed.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF47C\uF47D\uF47E\uF47F\uF480\uF481"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/hands.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF482\uF483\uF484\uF485\uF486\uF487\uF488"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/body_parts.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF48C\uF48D\uF48E\uF48F"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/plant_flower.png",
+      "ascent": 7,
+      "height": 9,
+      "chars": [
+        "\uF490"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/award_medal.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF491\uF492\uF493\uF494"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/heart_on_fire_mending_heart.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF497\uF498"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/sky_weather.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF4C5"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "telosmancy:emoji/troll.png",
+      "ascent": 7,
+      "height": 9,
+      "chars":[
+        "\uF499\uF49A\uF49B\uF49C\uF49D\uF49E\uF49F\uF4A0\uF4A1\uF4A2\uF4A3\uF4A4\uF4A5\uF4A6\uF4A7\uF4A8\uF4A9\uF4AA\uF4AB\uF4AC\uF4AD\uF4AE\uF4AF\uF4B0\uF4B1\uF4B2\uF4B3\uF4B4\uF4B5\uF4B6\uF4B7\uF4B8\uF4B9"
+      ]
+    }
+  ]
+}

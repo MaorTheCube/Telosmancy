@@ -1,0 +1,44 @@
+package me.telosmancy.features.impl.tracking.bosstracker
+
+import java.util.regex.Pattern
+
+/**
+ * Constants and patterns for boss tracking
+ */
+object Constants {
+    // Chat patterns
+    val BOSS_DEFEATED_PATTERN: Pattern = Pattern.compile("^(\\w+) has been defeated(?:\\s+\\((\\d+)/(\\d+)\\))?")
+    val BOSS_SPAWNED_PATTERN: Pattern = Pattern.compile("^(\\w+) has spawned at ([0-9.-]+), ([0-9.-]+), ([0-9.-]+)")
+    val POTENTIAL_BOSS_PATTERN: Pattern = Pattern.compile("^\\[(\\w+)]")
+    val BOSS_ITEM_NAME_PATTERN: Pattern = Pattern.compile("^» \\[(\\w+)] «")
+    
+    // Shadowlands Boss Patterns
+    val SHADOWLANDS_SPAWNS: Map<String, Pattern> = mapOf(
+        "Reaper" to Pattern.compile("^\\[Reaper] The spectres watch closely\\."),
+        "Warden" to Pattern.compile("^\\[Warden] The flag flies once more\\."),
+        "Herald" to Pattern.compile("^\\[Herald] The torch burns bright\\.")
+    )
+
+    val SHADOWLANDS_DEFEATS: Map<String, Pattern> = mapOf(
+        "Reaper" to Pattern.compile("^\\[Reaper] So we shall persist in spirit\\."),
+        "Warden" to Pattern.compile("^\\[Warden] Remember us, warriors\\."),
+        "Herald" to Pattern.compile("^\\[Herald] Never let go of the light\\.")
+    )
+
+    // Timers (in ticks, 20 ticks = 1 second)
+    const val PORTAL_TIMER_NORMAL = 600  // 30 seconds
+    const val PORTAL_TIMER_RAPHAEL = 1200  // 60 seconds
+    const val DISTANCE_UPDATE_INTERVAL = 20  // 1 second
+    
+    // Rendering
+    const val DISTANCE_MARKER = "♦"
+    const val MIN_FADE_DISTANCE = 20.0
+    const val FADE_DISTANCE = 50.0
+    const val FRUSTUM_DOT_THRESHOLD = -0.2
+    
+    // Dimensions
+    const val DIMENSION_REALM = "realm"
+    const val DIMENSION_HUB = "hub"
+    const val DIMENSION_DUNGEON = "dungeon"
+    const val DIMENSION_DAILY = "daily"
+}
