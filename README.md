@@ -24,9 +24,9 @@
 
 | | |
 |---|---|
-| **HUD Widgets** | Pity counters, lifetime stats, session tracker, boss tracker — all in clean modern overlays |
+| **HUD Widgets** | Pity counters, lifetime stats, session tracker, boss tracker - all in clean modern overlays |
 | **Boss Tracker** | Live boss state with compass waypoints so you never miss a spawn |
-| **Chat** | Emoji shortcodes, proxy guild commands, and a quick item-share keybind |
+| **Chat** | Emoji shortcodes, Organized chat |
 | **Visuals** | Player HP bars, cosmetic size tweaks, and rendering improvements |
 
 <br>
